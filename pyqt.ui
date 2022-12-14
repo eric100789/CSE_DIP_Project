@@ -6,36 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1767</width>
-    <height>924</height>
+    <width>1920</width>
+    <height>1082</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QTreeWidget" name="file_tree">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>281</width>
-      <height>881</height>
-     </rect>
-    </property>
-    <column>
-     <property name="text">
-      <string notr="true">1</string>
-     </property>
-    </column>
-   </widget>
    <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>
       <x>310</x>
       <y>30</y>
-      <width>1441</width>
-      <height>851</height>
+      <width>1601</width>
+      <height>991</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -49,8 +34,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>1437</width>
-          <height>847</height>
+          <width>1597</width>
+          <height>987</height>
          </rect>
         </property>
         <widget class="QLabel" name="imgLabel">
@@ -58,8 +43,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>1441</width>
-           <height>851</height>
+           <width>1601</width>
+           <height>981</height>
           </rect>
          </property>
          <property name="font">
@@ -98,19 +83,6 @@
      <string>&lt;</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="next_img">
-    <property name="geometry">
-     <rect>
-      <x>1710</x>
-      <y>440</y>
-      <width>41</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>&gt;</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="filename">
     <property name="geometry">
      <rect>
@@ -127,6 +99,73 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
+   <widget class="QTreeView" name="file_tree">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>291</width>
+      <height>991</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="next_img">
+    <property name="geometry">
+     <rect>
+      <x>1870</x>
+      <y>440</y>
+      <width>41</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&gt;</string>
+    </property>
+   </widget>
+   <widget class="QTextBrowser" name="ascii_displayer">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>30</y>
+      <width>1601</width>
+      <height>991</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Consolas</family>
+      <pointsize>1</pointsize>
+     </font>
+    </property>
+    <property name="cursor" stdset="0">
+     <cursorShape>IBeamCursor</cursorShape>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="exit_ascii_displayer_btn">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>1025</x>
+      <y>930</y>
+      <width>171</width>
+      <height>91</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>微軟正黑體</family>
+      <pointsize>18</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Back To Image</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QMenuBar" name="menubar">
@@ -134,7 +173,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1767</width>
+     <width>1920</width>
      <height>23</height>
     </rect>
    </property>
