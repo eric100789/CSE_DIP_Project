@@ -7,7 +7,7 @@ ss="\n"*LENGTH
 def image_to_ascii_converter(im):
     im=im.convert("L")
     im.thumbnail((im.size[0]/im.size[1]*LENGTH,LENGTH))
-    im.show()
+    # im.show()
     arr=np.array(im)/256*69
     arr=arr.astype(int)
     im_in_ascii_arr=[]
