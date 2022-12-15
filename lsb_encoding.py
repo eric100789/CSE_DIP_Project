@@ -1,4 +1,4 @@
-from PIL import Image, ImageFilter
+from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 
 def BWpicture(im):
@@ -8,6 +8,15 @@ def BWpicture(im):
                 im.putpixel((i,j),255)
             else:
                 im.putpixel((i,j),0)
+    return im
+
+def LSB_text(tarImage, text, color, size, fontname):
+    x,y = tarImage.size
+    im = Image.new(mode='L', size=(x, y), color="white")
+    draw = ImageDraw.Draw(im)
+    font = ImageFont.truetype(fontname, size)
+    draw.text( (0,0), text, font=font)
+    im = LSB(tarImage, im, color)
     return im
 
 def LSB(tarImage, keyImage, color):
@@ -66,8 +75,22 @@ if __name__ == '__main__':
     im = LSB(im,r,'R')
     g = Image.open("input/test1.jpg").convert('L')
     im = LSB(im,g,'G')
-    b = Image.open("input/test3.jpg").convert('L')
-    im = LSB(im,b,'B')
+    text =\
+    """
+    We're no strangers to love
+    You know the rules and so do I (do I)
+    A full commitment's what I'm thinking of
+    You wouldn't get this from any other guy
+    I just wanna tell you how I'm feeling
+    Gotta make you understand
+    Never gonna give you up
+    Never gonna let you down
+    Never gonna run around and desert you
+    Never gonna make you cry
+    Never gonna say goodbye
+    Never gonna tell a lie and hurt you
+    """
+    im = LSB_text(im, text, 'B', 50, "font/MustardSmile.ttf")
     im.save("output/LSB_output1.png")
 
     decode = Image.open("output/LSB_output1.png")
