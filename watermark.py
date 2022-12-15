@@ -3,10 +3,10 @@ from PIL import Image
 
 encodePicture = WaterMark(password_wm=1, password_img=1) 
 
-PROTECTED_NAME = 'input/test1.jpg'
-WATERMARK_NAME = 'input/test2.jpg'
+PROTECTED_NAME = 'input/test1.png'
+WATERMARK_NAME = 'input/test2.png'
 ENCODED_NAME = 'output/output1.png'
-TEMP_NAME = 'output/temp.jpg'
+TEMP_NAME = 'output/temp.png'
 DECODE_NAME = 'output/output2.png'
 
 def EncodePicture():
