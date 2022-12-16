@@ -105,7 +105,7 @@
       <x>10</x>
       <y>30</y>
       <width>291</width>
-      <height>991</height>
+      <height>881</height>
      </rect>
     </property>
    </widget>
@@ -164,6 +164,19 @@
     </property>
     <property name="text">
      <string>Back To Image</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="color_label">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>920</y>
+      <width>291</width>
+      <height>101</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
     </property>
    </widget>
   </widget>
@@ -307,7 +320,7 @@
   </action>
   <action name="actionImage_Color_Picker">
    <property name="text">
-    <string>Image Color Picker</string>
+    <string>Image Eye Dropper</string>
    </property>
   </action>
   <action name="actionColor_Picker">

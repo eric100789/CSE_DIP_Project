@@ -1,8 +1,10 @@
-from PyQt5 import QtWidgets,QtGui,QtCore
+import time
+from PyQt5 import QtWidgets,QtGui,QtCore,QtTest
 from ui import Ui_MainWindow
-from PIL import ImageQt
+from PIL import ImageQt,Image
 from os import listdir
 from os.path import isfile,join
+import win32clipboard
 class FileList():
     def __init__(self):
         self.pointer=0
@@ -15,6 +17,7 @@ class FileList():
         if ".jpg" in file or ".png" in file or ".jpeg" in file or ".gif" in file or ".bmp" in file:
             return True
         return False
+
     def printf(self):
         print(self.file_list[self.pointer])
     def next(self):
@@ -26,16 +29,48 @@ class FileList():
     def find_file(self,s):
         self.pointer = self.file_list.index(s)
         self.file=self.file_list[self.pointer]
+
+class Undo_List():
+    def __init__(self):
+        self.pointer=-1
+        self.undo_list=[]
+    def __init__(self,im):
+        self.pointer=0
+        self.undo_list=[im]
+    def img_add(self,img):
+        self.undo_list=self.undo_list[:self.pointer+1]
+        self.undo_list.append(img)
+        self.pointer+=1
+    def undo(self):
+        if self.pointer==0:
+            return self.undo_list[0]
+        self.pointer-=1
+        return self.undo_list[self.pointer]
+    def redo(self):
+        if self.pointer==len(self.undo_list)-1:
+            return self.undo_list[self.pointer]
+        self.pointer+=1
+        return self.undo_list[self.pointer]
+    def isFront(self):
+        return self.pointer==0
+    def isNull(self):
+        return len(self.undo_list)==0
+    def isBack(self):
+        return self.pointer==len(self.undo_list)-1
+       
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         self.ui = Ui_MainWindow()
+        self.eyedroppered=False
+        self.Saved=True
         self.image=None
-        self.isVerticalFlip=False
-        self.isHorizontalFlip=False
-        self.rotation_degree=0
+        # self.setMouseTracking(True)
+       
         self.ui.setupUi(self)
+        # self.ui.imgLabel.setMouseTracking(True)
         self.setup()
+        self.ui.imgLabel.mouseMoveEvent = self.mouseMoveEvent
     def setup(self):
         self.ui.ascii_displayer.hide()
         self.ui.exit_ascii_displayer_btn.hide()
@@ -54,15 +89,30 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.actionDefault_Size.triggered.connect(self.zoom_to_default)
         self.ui.actionDefault_Size.setShortcut("Ctrl+\\")
         self.ui.actionAscii_Art.triggered.connect(self.show_ascii)
+        self.ui.actionUndo.triggered.connect(self.undo)
+        self.ui.actionUndo.setShortcut("Ctrl+Z")
+        self.ui.actionRedo.triggered.connect(self.redo)
+        self.ui.actionRedo.setShortcut("Ctrl+Shift+Z")
+        self.ui.actionRotate_90.triggered.connect(self.rotate_90)
+        self.ui.actionRotate_91.triggered.connect(self.rotate_91)
+        self.ui.actionhorizontal_flip.triggered.connect(self.horizonal_flip)
+        self.ui.actionVertical_Flip.triggered.connect(self.vertical_flip)
         self.ui.file_tree.clicked.connect(self.file_clicked)
         self.ui.next_img.clicked.connect(self.next_clicked)
         self.ui.next_img.setShortcut("Right")
         self.ui.prev_img.clicked.connect(self.prev_clicked)
         self.ui.prev_img.setShortcut("Left")
         self.ui.exit_ascii_displayer_btn.clicked.connect(self.exit_ascii)
-    def set_img(self):
+        self.ui.actionImage_Color_Picker.triggered.connect(self.eyedropper)
+        self.ui.actionImage_Color_Picker.setShortcut("Alt+E")
+    def set_img(self,im=None):
         
-        self.image=QtGui.QImage(self.dir+"/"+self.file_list.file)
+        if not im:
+            self.image=QtGui.QImage(self.dir+"/"+self.file_list.file)
+            self.undolist=Undo_List(ImageQt.fromqimage(self.image))
+        else:
+            self.image=ImageQt.ImageQt(im)
+            self.Saved=self.undolist.isFront()
         if self.image.isNull():
             QtWidgets.QMessageBox.information(self, "Image Viewer", "Cannot load %s." % self.file_list.file)
             return
@@ -74,6 +124,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.filename.setText(self.dir+'/'+self.file_list.file)
         self.zoom_factor=1.0
         self.zoom_to_default()
+        self.degree=0
         
     def model_element_append(self):
         self.model = QtGui.QStandardItemModel()
@@ -81,7 +132,7 @@ class MainWindow(QtWidgets.QMainWindow):
             i = QtGui.QStandardItem(file)
             self.model.appendRow(i)
 
-            i.setData(QtGui.QIcon(join(self.dir,'ico','image.png')),1)
+            i.setData(QtGui.QIcon(join('.','ico','image.png')),1)
     def open_im(self):
         fileName, fileType = QtWidgets.QFileDialog.getOpenFileName(self, 'Open Image','','Images (*.png *.jpeg *.jpg *.bmp *.gif)')
         if fileName:
@@ -164,6 +215,83 @@ class MainWindow(QtWidgets.QMainWindow):
     def prev_clicked(self):
         self.file_list.prev()
         self.set_img()
+
+    def undo(self):
+        if not self.undolist.isFront():
+            im=self.undolist.undo()
+            self.set_img(im)
+    
+    def redo(self):
+        if not self.undolist.isBack():
+            im=self.undolist.redo()
+            self.set_img(im)
+    
+    def rotate_90(self):
+        im = ImageQt.fromqimage(self.image)
+        im=im.rotate(90,expand=1)
+        self.undolist.img_add(im)
+        self.set_img(im)
+        self.Saved=False
+
+    def rotate_91(self):
+        im = ImageQt.fromqimage(self.image)
+        im=im.rotate(270,expand=1)
+        self.undolist.img_add(im)
+        self.set_img(im)
+        self.Saved=False
+
+    def horizonal_flip(self):
+        im = ImageQt.fromqimage(self.image)
+        im=im.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+        self.undolist.img_add(im)
+        self.set_img(im)
+        self.Saved=False
+
+    def vertical_flip(self):
+        im = ImageQt.fromqimage(self.image)
+        im=im.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
+        self.undolist.img_add(im)
+        self.set_img(im)
+        self.Saved=False
+    # def mouseMoveEvent(self, event):
+    #     print(event.x(),event.y())
+    def mouseMoveEvent(self,event):
+        if self.eyedroppered:
+            im=ImageQt.fromqpixmap(self.ui.imgLabel.grab())
+            pos=(event.x(),event.y())#-631,-233
+            # print(event.x(),event.y())
+            self.ui.color_label.setStyleSheet("background-color:rgb{}".format(str(im.getpixel(pos))))
+    def eyedropper(self):
+        self.ui.imgLabel.mouseReleaseEvent = self.release_eyedropper
+        self.ui.imgLabel.setMouseTracking(True)
+        self.eyedroppered=True
+       
+        # pass
+    # def move_eyedropper(self,event):
+    #     self.setMouseTracking(True)
+    #     im=ImageQt.fromqpixmap(self.ui.imgLabel.grab())
+    #     pos=QtGui.QCursor.pos()
+    #     pos=(pos.x()-631,pos.y()-233)
+    #     print(pos,event.x(),event.y())
+    #     self.ui.color_label.setStyleSheet("background-color:rgb{}".format(str(im.getpixel(pos))))
+    def release_eyedropper(self,event):
+        # print("release"*10)
+        im=ImageQt.fromqpixmap(self.ui.imgLabel.grab())
+        pos=(event.x(),event.y())#-631,-233
+        # print(event.x(),event.y())
+        self.ui.color_label.setStyleSheet("background-color:rgb{}".format(str(im.getpixel(pos))))
+        # print(im.getpixel(pos))
+        self.ui.imgLabel.mouseReleaseEvent = None
+        self.ui.imgLabel.setMouseTracking(False)
+        self.eyedroppered=False
+        win32clipboard.OpenClipboard()
+        win32clipboard.EmptyClipboard()
+        win32clipboard.SetClipboardText(str(im.getpixel(pos)))
+        win32clipboard.CloseClipboard()
+        # print(im.getpixel((QtGui.QCursor.pos().x(),QtGui.QCursor.pos().y())))
+        self.ui.filename.setText("Copy Successed!")
+        QtTest.QTest.qWait(2500)
+        self.ui.filename.setText(self.dir+'/'+self.file_list.file)
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
