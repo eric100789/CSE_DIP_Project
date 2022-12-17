@@ -61,6 +61,9 @@ class Undo_List():
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
+        # self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        # self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+        # self.setStyleSheet('background-color:"#C5222222";color: "#E6E6FA"')
         self.ui = Ui_MainWindow()
         self.eyedroppered=False
         self.Saved=True
@@ -196,8 +199,12 @@ class MainWindow(QtWidgets.QMainWindow):
         from ascii import image_to_ascii_converter
         self.ui.ascii_displayer.show()
         self.ui.exit_ascii_displayer_btn.show()
-        ascii = image_to_ascii_converter(ImageQt.fromqimage(self.image))
+        im=ImageQt.fromqimage(self.image)
+        ascii = image_to_ascii_converter(im)
+        LENGTH=325
+        im.thumbnail((im.size[0]/im.size[1]*LENGTH,LENGTH))
         self.ui.ascii_displayer.setText(ascii)
+        
     def exit_ascii(self):
         self.ui.ascii_displayer.hide()
         self.ui.exit_ascii_displayer_btn.hide()
