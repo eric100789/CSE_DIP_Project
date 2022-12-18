@@ -29,7 +29,7 @@ def LSB_full_grey(tarImage, keyImage, tarNum, keyNum):
 
 if __name__ == '__main__':
     im = Image.open("input/test1.jpg")
-    r = Image.open("input/test2.jpg")
+    r = Image.open("input/test4.jpg")
 
-    im = LSB_full_grey(im, r, 6, 2)
-    im.show()
+    im = LSB_full_grey(im, r, 4, 4)
+    im.save("output/LSB_output5.png")
