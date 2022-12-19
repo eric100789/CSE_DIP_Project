@@ -1,3 +1,4 @@
 DIP FINAL EXAM PROJECT
 ---------------------
-Now Include ascii.py which convert image to ascii art.
+A Basic Image Viewer with basic option and some cool function.
+Now Include Ascii Converter.
