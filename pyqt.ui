@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -232,14 +235,19 @@
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="enabled">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
     <property name="title">
      <string>Tools</string>
     </property>
     <addaction name="actionImage_Color_Picker"/>
-    <addaction name="actionColor_Picker"/>
     <addaction name="actionAscii_Art"/>
+    <addaction name="actionLSB_Encode"/>
+    <addaction name="actionLSB_Decode"/>
+    <addaction name="actionLSB_full_grey"/>
+    <addaction name="actionMontage"/>
+    <addaction name="actionCompression"/>
+    <addaction name="actionUncompression"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuDisplay"/>
@@ -323,7 +331,7 @@
     <string>Image Eye Dropper</string>
    </property>
   </action>
-  <action name="actionColor_Picker">
+  <action name="action">
    <property name="text">
     <string>Color Picker</string>
    </property>
@@ -341,6 +349,36 @@
   <action name="actionRedo">
    <property name="text">
     <string>Redo</string>
+   </property>
+  </action>
+  <action name="actionLSB_Encode">
+   <property name="text">
+    <string>LSB Encode</string>
+   </property>
+  </action>
+  <action name="actionLSB_Decode">
+   <property name="text">
+    <string>LSB Decode</string>
+   </property>
+  </action>
+  <action name="actionCompression">
+   <property name="text">
+    <string>Compression</string>
+   </property>
+  </action>
+  <action name="actionLSB_full_grey">
+   <property name="text">
+    <string>LSB  full-grey</string>
+   </property>
+  </action>
+  <action name="actionMontage">
+   <property name="text">
+    <string>Montage</string>
+   </property>
+  </action>
+  <action name="actionUncompression">
+   <property name="text">
+    <string>Uncompression</string>
    </property>
   </action>
  </widget>

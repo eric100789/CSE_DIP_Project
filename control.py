@@ -2,6 +2,8 @@ import time
 from PyQt5 import QtWidgets,QtGui,QtCore,QtTest
 from ui import Ui_MainWindow
 from PIL import ImageQt,Image
+import os
+import subprocess
 from os import listdir
 from os.path import isfile,join
 import win32clipboard
@@ -14,7 +16,7 @@ class FileList():
         self.file_list = [f for f in listdir(dir) if isfile(join(dir, f)) and self.isImage(join(dir, f))]
         self.file=self.file_list[self.pointer]
     def isImage(self,file):
-        if ".jpg" in file or ".png" in file or ".jpeg" in file or ".gif" in file or ".bmp" in file:
+        if ".jpg" in file or ".png" in file or ".jpeg" in file or ".gif" in file or ".bmp" in file or ".dip" in file:
             return True
         return False
 
@@ -108,11 +110,22 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.exit_ascii_displayer_btn.clicked.connect(self.exit_ascii)
         self.ui.actionImage_Color_Picker.triggered.connect(self.eyedropper)
         self.ui.actionImage_Color_Picker.setShortcut("Alt+E")
+        self.ui.actionLSB_Encode.triggered.connect(self.lsb_encode)
+        self.ui.actionLSB_Decode.triggered.connect(self.lsb_decode)
+        self.ui.actionLSB_full_grey.triggered.connect(self.lsb_grey)
+        self.ui.actionMontage.triggered.connect(self.im_montage)
+        self.ui.actionCompression.triggered.connect(self.im_compress)
+        self.ui.actionUncompression.triggered.connect(self.im_uncompress)
     def set_img(self,im=None):
         
         if not im:
-            self.image=QtGui.QImage(self.dir+"/"+self.file_list.file)
-            self.undolist=Undo_List(ImageQt.fromqimage(self.image))
+            if '.dip' in self.name:
+                subprocess.run([r'.\hw8-b103040008','-u','-i',self.name,'-o','ABL@#Ff$43KSJFLKJFSLKFJ.jpg'],shell=True)
+                self.image=QtGui.QImage(self.dir+"/"+'ABL@#Ff$43KSJFLKJFSLKFJ.jpg')
+                self.undolist=Undo_List(ImageQt.fromqimage(self.image))
+            else:
+                self.image=QtGui.QImage(self.dir+"/"+self.file_list.file)
+                self.undolist=Undo_List(ImageQt.fromqimage(self.image))
         else:
             self.image=ImageQt.ImageQt(im)
             self.Saved=self.undolist.isFront()
@@ -137,8 +150,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
             i.setData(QtGui.QIcon(join('.','ico','image.png')),1)
     def open_im(self):
-        fileName, fileType = QtWidgets.QFileDialog.getOpenFileName(self, 'Open Image','','Images (*.png *.jpeg *.jpg *.bmp *.gif)')
+        fileName, fileType = QtWidgets.QFileDialog.getOpenFileName(self, 'Open Image','','Images (*.png *.jpeg *.jpg *.bmp *.gif *.dip)')
         if fileName:
+            self.name=fileName
             self.type=fileType
             self.dir=fileName[:fileName.rfind('/')]
             self.file_list=FileList(self.dir)
@@ -171,6 +185,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return
         fileName, fileType = QtWidgets.QFileDialog.getSaveFileName(self, 'Save as','','Images (*.png *.jpeg *.jpg *.bmp *.gif)')
         self.image.save(fileName)
+        self.file_reload(fileName)
         # pass
     def zoom_in(self):
         self.zoom_factor*=1.25
@@ -211,7 +226,12 @@ class MainWindow(QtWidgets.QMainWindow):
     def file_clicked(self):
         index=self.ui.file_tree.selectedIndexes()[0]
         dir_or_img = self.model.itemFromIndex(index).text()
-        if ".jpg" in dir_or_img or ".png" in dir_or_img or ".jpeg" in dir_or_img or ".gif" in dir_or_img or ".bmp" in dir_or_img :
+        if ".jpg" in dir_or_img or ".png" in dir_or_img or ".jpeg" in dir_or_img or ".gif" in dir_or_img or ".bmp" in dir_or_img or ".dip" in dir_or_img:
+            try:
+                os.remove("./ABL@#Ff$43KSJFLKJFSLKFJ.jpg")
+            except:
+                pass
+            self.name=dir_or_img
             self.file_list.find_file(dir_or_img)
             self.set_img()
 
@@ -299,12 +319,104 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.filename.setText("Copy Successed!")
         QtTest.QTest.qWait(2500)
         self.ui.filename.setText(self.dir+'/'+self.file_list.file)
+    def file_reload(self,fileName):
+        print(fileName)
+        self.file_list=FileList(self.dir)
+        self.file_list.find_file(fileName[fileName.rindex('/')+1:])
+        self.set_img()
+        self.model_element_append()
+        self.ui.file_tree.setModel(self.model)
+    def lsb_encode(self):
+        fileName, fileType = QtWidgets.QFileDialog.getOpenFileName(self, 'Open Image','','Images (*.png *.jpeg *.jpg *.bmp *.gif)')
+        if fileName:
+            from lsb_encoding import LSB,LSB_decode
+            print(self.name,fileName)
+            o_im=Image.open(self.name)
+            k_im=Image.open(fileName).convert('L')
+            msgbox=QtWidgets.QMessageBox()
+            msgbox.setText('Which Color')
+            rb=msgbox.addButton('R',QtWidgets.QMessageBox.ButtonRole.YesRole)
+            gb=msgbox.addButton('G',QtWidgets.QMessageBox.ButtonRole.NoRole)
+            bb=msgbox.addButton('B',QtWidgets.QMessageBox.ButtonRole.RejectRole)
+            msgbox.exec_()
+            s=""
+            if msgbox.clickedButton() == rb:
+                s='R'
+            elif msgbox.clickedButton() == gb:
+                s='G'
+            elif msgbox.clickedButton() == bb:
+                s='B'
+            new_im=LSB(o_im,k_im,s)
+            fileName, fileType = QtWidgets.QFileDialog.getSaveFileName(self, 'Save as','','Images (*.png *.jpeg *.jpg *.bmp *.gif)')
+            new_im.save(fileName)
+            self.image=ImageQt.toqimage(new_im)
+            self.file_reload(fileName)
+    def lsb_decode(self):
+        from lsb_encoding import LSB_decode
+        o_im=ImageQt.fromqimage(self.image)
+        msgbox=QtWidgets.QMessageBox()
+        msgbox.setText('Which Color')
+        rb=msgbox.addButton('R',QtWidgets.QMessageBox.ButtonRole.YesRole)
+        gb=msgbox.addButton('G',QtWidgets.QMessageBox.ButtonRole.NoRole)
+        bb=msgbox.addButton('B',QtWidgets.QMessageBox.ButtonRole.RejectRole)
+        msgbox.exec_()
+        s=""
+        if msgbox.clickedButton() == rb:
+            s='R'
+        elif msgbox.clickedButton() == gb:
+            s='G'
+        elif msgbox.clickedButton() == bb:
+            s='B'
+
+        new_im=LSB_decode(o_im,s)
+        fileName, fileType = QtWidgets.QFileDialog.getSaveFileName(self, 'Save as','','Images (*.png *.jpeg *.jpg *.bmp *.gif)')
+        new_im.save(fileName)
+        self.image=ImageQt.toqimage(new_im)
+        self.file_reload(fileName)
+    def lsb_grey(self):
+        fileName, fileType = QtWidgets.QFileDialog.getOpenFileName(self, 'Open Image','','Images (*.png *.jpeg *.jpg *.bmp *.gif)')
+        if fileName:
+            from lsb_greyencode import LSB_full_grey
+            # print(self.name,fileName)
+            o_im=Image.open(self.name)
+            k_im=Image.open(fileName)
+            new_im=LSB_full_grey(o_im,k_im,4,4)
+            fileName, fileType = QtWidgets.QFileDialog.getSaveFileName(self, 'Save as','','Images (*.png *.jpeg *.jpg *.bmp *.gif)')
+            new_im.save(fileName)
+            self.image=ImageQt.toqimage(new_im)
+            self.file_reload(fileName)
+    def im_montage(self):
+        from hsiang import montage
+        new_im=montage(ImageQt.fromqimage(self.image))
+        fileName, fileType = QtWidgets.QFileDialog.getSaveFileName(self, 'Save as','','Images (*.png *.jpeg *.jpg *.bmp *.gif)')
+        new_im.save(fileName)
+        self.image=ImageQt.toqimage(new_im)
+        self.file_reload(fileName)
+    def im_compress(self):
+        from compress import compress
+        fileName, fileType = QtWidgets.QFileDialog.getSaveFileName(self, 'Save as','','Compresseed Images (*.dip)')
+        if fileName:compress(self.name,fileName)
+    def im_uncompress(self):
+        fileName, fileType = QtWidgets.QFileDialog.getOpenFileName(self, 'Open Compresseed Images','','Compresseed Images (*.dip)')
+        with open(fileName,"rb") as f:
+            string=f.readline()
+            while string!=b"00\n":
+                string=f.readline()
+            trash,extension = os.path.splitext(f.readline().decode('ascii'))
+            # print(trash,extension)
+
+            save_f,type = QtWidgets.QFileDialog.getSaveFileName(self, 'Save as','','(*%s)'%extension)
+            # print(open_f,save_f)
+            # print(r'.\hw8-b103040008 -u -i '+open_f+" -o "+save_f)
+            subprocess.run([r'.\hw8-b103040008','-u','-i',fileName,"-o",save_f],shell=True)
+
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     ui = MainWindow()
     ui.show()
     sys.exit(app.exec_())
+    
 
     
 

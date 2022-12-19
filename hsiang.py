@@ -15,7 +15,7 @@ def pre() :
         image = cv2.imread ( img_path )
         image = cv2.resize ( image ,(100,100) )
         cv2.imwrite( after_process_path + "//" + file , image )
-        print( num )
+        # print( num )
 
 def index():
     after_process_path = r"./processing"
@@ -38,7 +38,7 @@ def index():
         string += ":"
         string += str( m[0][0] ).replace( "(" , "" ).replace( ")" , "" )
         string += "\n"
-        print( num )
+        # print( num )
     file_output = open( 'index.txt','w' )
     file_output.write( string )
 
@@ -59,8 +59,8 @@ def readIndex():
     return dic_index
 
 def montage ( img_input ):
-    pre()
-    index()
+    # pre()
+    # index()
     after_process_path = r"./processing"
     image_to_montage = cv2.cvtColor(np.asarray(img_input), cv2.COLOR_RGB2BGR)
     m_photo = np.shape ( image_to_montage )
@@ -68,7 +68,7 @@ def montage ( img_input ):
     small_list = readIndex() 
     for i in range( m_photo[0] ):
         for j in range( m_photo[1] ):
-            print( i )
+            # print( i )
             m_photo_b = image_to_montage[i, j, 0]
             m_photo_g = image_to_montage[i, j, 1]
             m_photo_r = image_to_montage[i, j, 2]
@@ -86,4 +86,6 @@ def montage ( img_input ):
     
     image_return = Image.fromarray( big_pic )
     return image_return
-
+if __name__=="__main__":
+    a=Image.open('LSB_output1.png')
+    montage(a).show()

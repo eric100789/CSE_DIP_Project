@@ -73,6 +73,7 @@ if __name__ == '__main__':
     im = Image.open("input/test1.jpg")
     r = Image.open("input/test2.jpg").convert('L')
     im = LSB(im,r,'R')
+    LSB_decode(im,'R').show()
     g = Image.open("input/test1.jpg").convert('L')
     im = LSB(im,g,'G')
     text =\
