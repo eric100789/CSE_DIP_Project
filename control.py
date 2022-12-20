@@ -117,11 +117,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.actionCompression.triggered.connect(self.im_compress)
         self.ui.actionUncompression.triggered.connect(self.im_uncompress)
     def set_img(self,im=None):
-        
+        # print(self.name)
         if not im:
             if '.dip' in self.name:
                 subprocess.run([r'.\hw8-b103040008','-u','-i',self.name,'-o','ABL@#Ff$43KSJFLKJFSLKFJ.jpg'],shell=True)
+                # time.sleep(1)
                 self.image=QtGui.QImage(self.dir+"/"+'ABL@#Ff$43KSJFLKJFSLKFJ.jpg')
+                # print(self.image)
                 self.undolist=Undo_List(ImageQt.fromqimage(self.image))
             else:
                 self.image=QtGui.QImage(self.dir+"/"+self.file_list.file)
@@ -237,10 +239,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def next_clicked(self):
         self.file_list.next()
+        self.name=self.file_list.file
         self.set_img()
 
     def prev_clicked(self):
         self.file_list.prev()
+        self.name=self.file_list.file
         self.set_img()
 
     def undo(self):
@@ -320,7 +324,7 @@ class MainWindow(QtWidgets.QMainWindow):
         QtTest.QTest.qWait(2500)
         self.ui.filename.setText(self.dir+'/'+self.file_list.file)
     def file_reload(self,fileName):
-        print(fileName)
+        # print(fileName)
         self.file_list=FileList(self.dir)
         self.file_list.find_file(fileName[fileName.rindex('/')+1:])
         self.set_img()
@@ -330,7 +334,7 @@ class MainWindow(QtWidgets.QMainWindow):
         fileName, fileType = QtWidgets.QFileDialog.getOpenFileName(self, 'Open Image','','Images (*.png *.jpeg *.jpg *.bmp *.gif)')
         if fileName:
             from lsb_encoding import LSB,LSB_decode
-            print(self.name,fileName)
+            # print(self.name,fileName)
             o_im=Image.open(self.name)
             k_im=Image.open(fileName).convert('L')
             msgbox=QtWidgets.QMessageBox()
