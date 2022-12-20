@@ -6,7 +6,7 @@ import os
 import subprocess
 from os import listdir
 from os.path import isfile,join
-import win32clipboard
+
 class FileList():
     def __init__(self):
         self.pointer=0
@@ -306,6 +306,7 @@ class MainWindow(QtWidgets.QMainWindow):
     #     print(pos,event.x(),event.y())
     #     self.ui.color_label.setStyleSheet("background-color:rgb{}".format(str(im.getpixel(pos))))
     def release_eyedropper(self,event):
+        from platform import system
         # print("release"*10)
         im=ImageQt.fromqpixmap(self.ui.imgLabel.grab())
         pos=(event.x(),event.y())#-631,-233
@@ -315,10 +316,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.imgLabel.mouseReleaseEvent = None
         self.ui.imgLabel.setMouseTracking(False)
         self.eyedroppered=False
-        win32clipboard.OpenClipboard()
-        win32clipboard.EmptyClipboard()
-        win32clipboard.SetClipboardText(str(im.getpixel(pos)))
-        win32clipboard.CloseClipboard()
+        if system()=='Windows':
+            import win32clipboard
+            win32clipboard.OpenClipboard()
+            win32clipboard.EmptyClipboard()
+            win32clipboard.SetClipboardText(str(im.getpixel(pos)))
+            win32clipboard.CloseClipboard()
+        elif system()=='Darwin':
+            process = subprocess.Popen('pbcopy', env={'LANG': 'en_US.UTF-8'}, stdin=subprocess.PIPE)
+            process.communicate(str(im.getpixel(pos)).encode('utf-8'))
         # print(im.getpixel((QtGui.QCursor.pos().x(),QtGui.QCursor.pos().y())))
         self.ui.filename.setText("Copy Successed!")
         QtTest.QTest.qWait(2500)
